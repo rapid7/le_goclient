@@ -53,7 +53,7 @@ type User struct {
 type Client struct {
     Log *LogClient
     LogSet *LogSetClient
-    Account *AccountClient
+    User *UserClient
     LogType *LogTypeClient
 }
 
@@ -61,7 +61,7 @@ func NewClient(account_key string) *Client {
     client := &Client{}
     client.Log = NewLogClient(account_key)
     client.LogSet = NewLogSetClient(account_key)
-    client.Account = NewAccountClient(account_key)
+    client.User = NewUserClient(account_key)
     client.LogType = NewLogTypeClient(account_key)
     return client
 }

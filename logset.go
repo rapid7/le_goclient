@@ -70,8 +70,8 @@ type LogSetReadResponse struct {
 }
 
 func (l *LogSetClient) Read(readRequest LogSetReadRequest) (*LogSet, error) {
-    accountClient := NewAccountClient(l.AccountKey)
-    response, err := accountClient.Read(AccountReadRequest{})
+    userClient := NewUserClient(l.AccountKey)
+    response, err := userClient.Read(UserReadRequest{})
     if err != nil {
         return nil, err
     }

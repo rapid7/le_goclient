@@ -9,25 +9,25 @@ import (
     "fmt"
 )
 
-type AccountClient struct {
-    AccountKey string
+type UserClient struct {
+    UserKey string
 }
 
-type AccountReadRequest struct {
+type UserReadRequest struct {
 }
 
-type AccountReadResponse struct {
+type UserReadResponse struct {
     User
     ApiResponse
 }
 
-func (u *AccountClient) Read(readRequest AccountReadRequest) (*AccountReadResponse, error) {
+func (u *UserClient) Read(readRequest UserReadRequest) (*UserReadResponse, error) {
     form := url.Values{}
     form.Add("request", "get_user")
     form.Add("load_hosts", "1")
     form.Add("load_logs", "1")
     form.Add("load_alerts", "0")
-    form.Add("user_key", u.AccountKey)
+    form.Add("user_key", u.UserKey)
     form.Add("id", "terraform")
     resp, err := http.Post(
         "https://api.logentries.com/", 
@@ -39,7 +39,7 @@ func (u *AccountClient) Read(readRequest AccountReadRequest) (*AccountReadRespon
     }
 
     if resp.StatusCode == 200 {
-        var response AccountReadResponse
+        var response UserReadResponse
         json.NewDecoder(resp.Body).Decode(&response)
         return &response, nil
     }
@@ -48,7 +48,7 @@ func (u *AccountClient) Read(readRequest AccountReadRequest) (*AccountReadRespon
     return nil, fmt.Errorf("Could not retrieve account info: %s", string(body))
 }
 
-func NewAccountClient(account_key string) *AccountClient {
-    account := AccountClient{AccountKey: account_key}
+func NewUserClient(account_key string) *UserClient {
+    account := UserClient{UserKey: account_key}
     return &account
 }
