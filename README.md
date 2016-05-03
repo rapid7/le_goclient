@@ -1,5 +1,5 @@
 # Logentries client (golang)
-Provides the capability to read/manage log sets, logs, and log types.
+Provides the capability to perform CRUD operations on log sets, logs, and log types.
 
 # Example
 
