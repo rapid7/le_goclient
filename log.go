@@ -138,7 +138,7 @@ func (l *LogClient) Update(updateRequest LogUpdateRequest) (*Log, error) {
         if response.Response == "ok" {
             return &response.Log, nil
         } else {
-            return nil, fmt.Errorf("failed to update log %s: %s", updateRequest.Name, response.Response)
+            return nil, fmt.Errorf("failed to update log %s: %s", updateRequest.Name, response.ResponseReason)
         }
     }
 
