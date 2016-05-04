@@ -113,7 +113,7 @@ func (l *LogSetClient) Update(updateRequest LogSetUpdateRequest) (*LogSet, error
 		if response.Response == "ok" {
 			return &response.LogSet, nil
 		} else {
-			return nil, fmt.Errorf("failed to update log set %s: %s", updateRequest.Name, response.Response)
+			return nil, fmt.Errorf("failed to update log set %s: %s", updateRequest.Name, response.ResponseReason)
 		}
 	}
 
