@@ -4,12 +4,11 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"net/http"
 	"net/url"
 )
 
 type UserClient struct {
-	UserKey string
+	client
 }
 
 type UserReadRequest struct {
@@ -26,9 +25,8 @@ func (u *UserClient) Read(readRequest UserReadRequest) (*UserReadResponse, error
 	form.Add("load_hosts", "1")
 	form.Add("load_logs", "1")
 	form.Add("load_alerts", "0")
-	form.Add("user_key", u.UserKey)
 	form.Add("id", "terraform")
-	resp, err := http.PostForm("https://api.logentries.com/", form)
+	resp, err := u.PostForm(form)
 
 	if err != nil {
 		return nil, err
@@ -45,6 +43,5 @@ func (u *UserClient) Read(readRequest UserReadRequest) (*UserReadResponse, error
 }
 
 func NewUserClient(account_key string) *UserClient {
-	account := UserClient{UserKey: account_key}
-	return &account
+	return &UserClient{defaultClient(account_key)}
 }

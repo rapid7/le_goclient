@@ -1,5 +1,10 @@
 package logentries
 
+import (
+	"net/http"
+	"net/url"
+)
+
 type ApiResponse struct {
 	Response       string `json:"response"`
 	ResponseReason string `json:"reason"`
@@ -50,6 +55,25 @@ type User struct {
 	Logs    []interface{} `json:"logs"`
 }
 
+type client interface {
+	PostForm(url.Values) (*http.Response, error)
+	Get(string) (*http.Response, error)
+}
+
+type realClient struct {
+	AccountKey string
+	Endpoint   string
+}
+
+func (c *realClient) PostForm(form url.Values) (*http.Response, error) {
+	form.Add("user_key", c.AccountKey)
+	return http.PostForm(c.Endpoint, form)
+}
+
+func (c *realClient) Get(path string) (*http.Response, error) {
+	return http.Get(c.Endpoint + c.AccountKey + path)
+}
+
 type Client struct {
 	Log     *LogClient
 	LogSet  *LogSetClient
@@ -57,11 +81,21 @@ type Client struct {
 	LogType *LogTypeClient
 }
 
+func newFullClient(c client) *Client {
+	return &Client{
+		Log:     &LogClient{c},
+		LogSet:  &LogSetClient{c},
+		User:    &UserClient{c},
+		LogType: &LogTypeClient{c},
+	}
+}
+func defaultClient(account_key string) client {
+	return &realClient{
+		AccountKey: account_key,
+		Endpoint:   "https://api.logentries.com/",
+	}
+}
+
 func NewClient(account_key string) *Client {
-	client := &Client{}
-	client.Log = NewLogClient(account_key)
-	client.LogSet = NewLogSetClient(account_key)
-	client.User = NewUserClient(account_key)
-	client.LogType = NewLogTypeClient(account_key)
-	return client
+	return newFullClient(defaultClient(account_key))
 }

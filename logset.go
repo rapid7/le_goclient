@@ -4,12 +4,11 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"net/http"
 	"net/url"
 )
 
 type LogSetClient struct {
-	AccountKey string
+	client
 }
 
 type LogSetCreateRequest struct {
@@ -30,13 +29,12 @@ type LogSetCreateResponse struct {
 func (l *LogSetClient) Create(createRequest LogSetCreateRequest) (*LogSet, error) {
 	form := url.Values{}
 	form.Add("request", "register")
-	form.Add("user_key", l.AccountKey)
 	form.Add("name", createRequest.Name)
 	form.Add("hostname", createRequest.Location)
 	form.Add("distver", createRequest.DistVer)
 	form.Add("system", createRequest.System)
 	form.Add("distname", createRequest.DistName)
-	resp, err := http.PostForm("https://api.logentries.com/", form)
+	resp, err := l.PostForm(form)
 
 	if err != nil {
 		return nil, err
@@ -61,20 +59,23 @@ type LogSetReadRequest struct {
 }
 
 type LogSetReadResponse struct {
-	LogSet LogSet
+	LogSet
 	ApiResponse
 }
 
 func (l *LogSetClient) Read(readRequest LogSetReadRequest) (*LogSet, error) {
-	userClient := NewUserClient(l.AccountKey)
-	response, err := userClient.Read(UserReadRequest{})
+	resp, err := l.Get("/hosts/" + readRequest.Key)
 	if err != nil {
 		return nil, err
 	}
 
-	for _, logSet := range response.LogSets {
-		if logSet.Key == readRequest.Key {
-			return &logSet, nil
+	if resp.StatusCode == 200 {
+		var response LogSetReadResponse
+		json.NewDecoder(resp.Body).Decode(&response)
+		if response.Response == "ok" {
+			return &response.LogSet, nil
+		} else {
+			return nil, fmt.Errorf("failed to read log set %s: %s", readRequest.Key, response.ResponseReason)
 		}
 	}
 
@@ -97,11 +98,10 @@ type LogSetUpdateResponse struct {
 func (l *LogSetClient) Update(updateRequest LogSetUpdateRequest) (*LogSet, error) {
 	form := url.Values{}
 	form.Add("request", "set_host")
-	form.Add("user_key", l.AccountKey)
 	form.Add("host_key", updateRequest.Key)
 	form.Add("name", updateRequest.Name)
 	form.Add("hostname", string(updateRequest.Location))
-	resp, err := http.PostForm("https://api.logentries.com/", form)
+	resp, err := l.PostForm(form)
 
 	if err != nil {
 		return nil, err
@@ -135,9 +135,8 @@ type LogSetDeleteResponse struct {
 func (l *LogSetClient) Delete(deleteRequest LogSetDeleteRequest) error {
 	form := url.Values{}
 	form.Add("request", "rm_host")
-	form.Add("user_key", l.AccountKey)
 	form.Add("host_key", deleteRequest.Key)
-	resp, err := http.PostForm("https://api.logentries.com/", form)
+	resp, err := l.PostForm(form)
 
 	if err != nil {
 		return err
@@ -157,6 +156,6 @@ func (l *LogSetClient) Delete(deleteRequest LogSetDeleteRequest) error {
 }
 
 func NewLogSetClient(account_key string) *LogSetClient {
-	logset := &LogSetClient{AccountKey: account_key}
+	logset := &LogSetClient{defaultClient(account_key)}
 	return logset
 }

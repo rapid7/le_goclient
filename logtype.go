@@ -4,12 +4,11 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"net/http"
 	"net/url"
 )
 
 type LogTypeClient struct {
-	AccountKey string
+	client
 }
 
 type LogTypeListRequest struct {
@@ -31,9 +30,8 @@ func (u *LogTypeClient) Read(defaultLogTypeListRequest LogTypeListRequest) ([]Lo
 func (u *LogTypeClient) read(requestType string, logTypeListRequest LogTypeListRequest) ([]LogType, error) {
 	form := url.Values{}
 	form.Add("request", requestType)
-	form.Add("user_key", u.AccountKey)
 	form.Add("id", "terraform")
-	resp, err := http.PostForm("https://api.logentries.com/", form)
+	resp, err := u.PostForm(form)
 
 	if err != nil {
 		return nil, err
@@ -54,6 +52,5 @@ func (u *LogTypeClient) read(requestType string, logTypeListRequest LogTypeListR
 }
 
 func NewLogTypeClient(account_key string) *LogTypeClient {
-	client := LogTypeClient{AccountKey: account_key}
-	return &client
+	return &LogTypeClient{defaultClient(account_key)}
 }

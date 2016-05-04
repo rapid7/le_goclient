@@ -4,12 +4,11 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"net/http"
 	"net/url"
 )
 
 type LogClient struct {
-	AccountKey string
+	client
 }
 
 type LogCreateRequest struct {
@@ -31,14 +30,13 @@ type LogCreateResponse struct {
 func (l *LogClient) Create(createRequest LogCreateRequest) (*Log, error) {
 	form := url.Values{}
 	form.Add("request", "new_log")
-	form.Add("user_key", l.AccountKey)
 	form.Add("host_key", createRequest.LogSetKey)
 	form.Add("name", createRequest.Name)
 	form.Add("type", createRequest.Type)
 	form.Add("filename", createRequest.Filename)
 	form.Add("retention", createRequest.Retention)
 	form.Add("source", createRequest.Source)
-	resp, err := http.PostForm("https://api.logentries.com/", form)
+	resp, err := l.PostForm(form)
 
 	if err != nil {
 		return nil, err
@@ -72,7 +70,7 @@ func (l *LogClient) Read(readRequest LogReadRequest) (*Log, error) {
 	form := url.Values{}
 	form.Add("request", "get_log")
 	form.Add("log_key", readRequest.Key)
-	resp, err := http.PostForm("https://api.logentries.com/", form)
+	resp, err := l.PostForm(form)
 
 	if err != nil {
 		return nil, err
@@ -110,13 +108,12 @@ type LogUpdateResponse struct {
 func (l *LogClient) Update(updateRequest LogUpdateRequest) (*Log, error) {
 	form := url.Values{}
 	form.Add("request", "set_log")
-	form.Add("user_key", l.AccountKey)
 	form.Add("log_key", updateRequest.Key)
 	form.Add("name", updateRequest.Name)
 	form.Add("type", updateRequest.Type)
 	form.Add("source", updateRequest.Source)
 	form.Add("retention", string(updateRequest.Retention))
-	resp, err := http.PostForm("https://api.logentries.com/", form)
+	resp, err := l.PostForm(form)
 
 	if err != nil {
 		return nil, err
@@ -152,10 +149,9 @@ type LogDeleteResponse struct {
 func (l *LogClient) Delete(deleteRequest LogDeleteRequest) error {
 	form := url.Values{}
 	form.Add("request", "rm_log")
-	form.Add("user_key", l.AccountKey)
 	form.Add("host_key", deleteRequest.LogSetKey)
 	form.Add("log_key", deleteRequest.Key)
-	resp, err := http.PostForm("https://api.logentries.com/", form)
+	resp, err := l.PostForm(form)
 
 	if err != nil {
 		return err
@@ -175,6 +171,5 @@ func (l *LogClient) Delete(deleteRequest LogDeleteRequest) error {
 }
 
 func NewLogClient(account_key string) *LogClient {
-	log := &LogClient{AccountKey: account_key}
-	return log
+	return &LogClient{defaultClient(account_key)}
 }
