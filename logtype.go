@@ -7,6 +7,14 @@ import (
 	"net/url"
 )
 
+type LogType struct {
+	Title       string `json:"title"`
+	Description string `json:"desc"`
+	Key         string `json:"key"`
+	Shortcut    string `json:"shortcut"`
+	ApiObject
+}
+
 type LogTypeClient struct {
 	client
 }

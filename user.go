@@ -7,6 +7,13 @@ import (
 	"net/url"
 )
 
+type User struct {
+	UserKey string        `json:"user_key"`
+	LogSets []LogSet      `json:"hosts"`
+	Apps    []interface{} `json:"apps"`
+	Logs    []interface{} `json:"logs"`
+}
+
 type UserClient struct {
 	client
 }

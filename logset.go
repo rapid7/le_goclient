@@ -7,6 +7,17 @@ import (
 	"net/url"
 )
 
+type LogSet struct {
+	Distver  string `json:"distver"`
+	C        int64  `json:"c"`
+	Name     string `json:"name"`
+	Distname string `json:"distname"`
+	Location string `json:"hostname"`
+	Key      string `json:"key"`
+	Logs     []Log
+	ApiObject
+}
+
 type LogSetClient struct {
 	client
 }
