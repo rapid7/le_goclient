@@ -167,6 +167,5 @@ func (l *LogSetClient) Delete(deleteRequest LogSetDeleteRequest) error {
 }
 
 func NewLogSetClient(account_key string) *LogSetClient {
-	logset := &LogSetClient{defaultClient(account_key)}
-	return logset
+	return &LogSetClient{defaultClient(account_key)}
 }
