@@ -98,6 +98,7 @@ type LogUpdateRequest struct {
 	Type      string
 	Source    string
 	Retention string
+	Filename  string
 }
 
 type LogUpdateResponse struct {
@@ -115,7 +116,8 @@ func (l *LogClient) Update(updateRequest LogUpdateRequest) (*Log, error) {
 	form.Add("name", updateRequest.Name)
 	form.Add("type", updateRequest.Type)
 	form.Add("source", updateRequest.Source)
-	form.Add("retention", string(updateRequest.Retention))
+	form.Add("filename", updateRequest.Filename)
+	form.Add("retention", updateRequest.Retention)
 	resp, err := http.PostForm("https://api.logentries.com/", form)
 
 	if err != nil {
